@@ -1,494 +1,389 @@
-Create a comprehensive, professional, hackathon-ready README.md for my GitHub repository "Voice-to-Slide-Deck--Generator".
+# 🎙️ VoiceToSlide — AI-Powered Audio to PowerPoint Generator
 
-Write the ENTIRE README as one complete document. Do not give me instructions about how to write it. Do not give me multiple versions. Directly produce the final README content that I can copy into README.md.
+Turn spoken knowledge into a professional PowerPoint in minutes. Upload audio (optionally a supporting PDF), pick how many slides you want, pay via the x402/Algorand TestNet flow using Lute Wallet, and receive an AI-generated .pptx that exactly matches the requested slide count.
 
-The README must accurately describe the current project and its architecture.
+---
 
-PROJECT:
+Quick one-line summary
+- VoiceToSlide converts uploaded audio into a validated slide deck (.pptx) using speech transcription, AI slide-structuring, and PptxGenJS for PowerPoint generation — with payments protected by the x402 + Algorand TestNet + Lute Wallet flow.
 
-VoiceToSlide is an AI-powered web application that converts a user's uploaded audio into a professional PowerPoint presentation.
+Table of contents
+- Project status
+- Architecture & high-level flow
+- Project structure
+- Component responsibilities
+- Application flow (detailed)
+- Technology stack
+- Features
+- Setup (local)
+- Environment variables
+- Important endpoints & health checks
+- AI presentation pipeline & validation
+- Error handling & troubleshooting
+- Blockchain payment flow
+- Security
+- Hackathon / demo flow
+- Why VoiceToSlide?
+- Future improvements
+- Git workflow
+- License
 
-The user can:
-- Upload an audio file containing their explanation, lecture, idea, or topic.
-- Optionally upload a PDF containing supporting information.
-- Specify the number of slides they want.
-- Pay through the x402 payment flow using Algorand TestNet and Lute Wallet.
-- Have the audio transcribed.
-- Have AI understand the audio topic and generate the requested number of slides.
-- Preview the generated presentation.
-- Download the final PowerPoint (.pptx).
+---
 
-IMPORTANT CONTENT RULE:
+Project status
+- This repository represents an end-to-end working prototype / hackathon application that demonstrates transcription → AI slide generation → pptx creation with a protected payment path using Algorand TestNet and Lute Wallet. It is a prototype and not production-ready.
 
-The uploaded AUDIO is the PRIMARY source of truth.
+Architecture & high-level flow
+- Frontend (Next.js, TypeScript, Tailwind) — user UI, uploads, preview, payment UI integration with Lute Wallet — localhost:3000
+- Payment Gateway (Hono, TypeScript, x402 protection) — validates payment proofs, proxies/forwards authorized requests to AI backend — localhost:4020
+- AI Backend (Express, Node.js) — speech transcription, optional PDF extraction, AI slide generation, PptxGenJS conversion, storage/serving of generated PPTX — localhost:5000
 
-The presentation topic, slide titles, bullet points, and overall presentation content must be based on the actual uploaded audio transcript.
+Logical flow (quick)
+User → Frontend (upload + payment + wallet sign) → Payment Gateway (x402 verification) → AI Backend (transcribe → AI generate slides → validate → pptx) → Frontend preview → Download (.pptx)
 
-The PDF is OPTIONAL and SECONDARY. If a PDF is uploaded, it should only be used as supporting information and must not override or replace the topic from the audio.
-
-The system must not use hardcoded/demo topics, previous conversations, cached content, or unrelated sample presentations.
-
-SLIDE COUNT:
-
-The number of slides is dynamic.
-
-The user can request any valid number of slides.
-
-For example:
-- User requests 3 → generate exactly 3 slides.
-- User requests 5 → generate exactly 5 slides.
-- User requests 8 → generate exactly 8 slides.
-- User requests 10 → generate exactly 10 slides.
-
-Do not describe the project as always generating 5 slides.
-
-Explain that the requested slide count flows from the frontend to the AI generation pipeline and is validated before PowerPoint generation.
-
-POWERPOINT:
-
-Explain that AI-generated structured slide data is converted into an actual .pptx PowerPoint using PptxGenJS.
-
-The downloaded PowerPoint must contain exactly the number of slides requested by the user.
-
-The frontend preview and downloaded PowerPoint should use the same generated slide data.
-
-VISUALS:
-
-Explain that the presentation can contain relevant visual elements/images based on the actual topic of the uploaded audio.
-
-Do not claim that external image generation or image search is implemented unless it actually exists in the repository.
-
-If the current implementation uses visual layouts, icons, shapes, or images, describe them accurately without exaggerating capabilities.
-
-BLOCKCHAIN:
-
-The project contains a working x402 payment system.
-
-Explain:
-
-- x402 payment protocol
-- Algorand TestNet
-- Lute Wallet
-- Payment Gateway
-- Transaction signing
-- Payment verification
-- Protected AI endpoints
-
-The blockchain/payment implementation must be described as a separate layer from AI presentation generation.
-
-Architecture:
-
-Frontend:
-- Next.js
-- TypeScript
-- Tailwind CSS
-- Runs on localhost:3000
-
-Payment Gateway:
-- Hono
-- TypeScript
-- x402
-- Algorand TestNet
-- Runs on localhost:4020
-
-AI Backend:
-- Express
-- Node.js
-- Speech transcription
-- AI slide generation
-- PDF text extraction
-- PptxGenJS
-- Runs on localhost:5000
-
-PROJECT STRUCTURE:
-
-Describe this structure:
-
-Voice-to-Slide-Deck--Generator/
-├── ai-backend/
-├── payment-gateway/
-├── voice-to-slide-frontend/
-├── generate-samples.js
-├── .gitignore
-└── README.md
-
-Explain the important directories and files based on the actual project structure.
-
-AI BACKEND:
-
-Explain the responsibilities of:
-- controllers
-- routes
-- services
-- transcription service
-- PDF service
-- AI/GPT service
-- presentation generation
-- storage service
-
-PAYMENT GATEWAY:
-
-Explain the responsibilities of:
-- environment configuration
-- payment configuration
-- x402 middleware
-- health route
-- transcription route
-- slide-generation route
-- AI proxy
-
-FRONTEND:
-
-Explain the major pages/components such as:
-- Home
-- Upload
-- Preview
-- Download
-- UploadCard
-- TranscriptView
-- SlideCard
-- DownloadButton
-- X402PaywallModal
-- Lute Wallet integration
-- API service
-
-APPLICATION FLOW:
-
-Clearly explain the complete flow:
-
+ASCII diagram
+```
 User
-→ Frontend
-→ Audio/PDF upload
-→ x402 payment
-→ Lute Wallet
-→ Algorand TestNet
-→ Payment Gateway
-→ AI Backend
-→ Audio transcription
-→ Optional PDF extraction
-→ AI slide generation
-→ Requested slide count validation
-→ PptxGenJS
-→ PowerPoint
-→ Frontend preview
-→ Download
+  |
+  v
+Frontend (Next.js @ :3000)
+  |-- Upload audio (+ optional PDF)
+  |-- Request payment (x402) → Lute Wallet (Algorand TestNet)
+  v
+Payment Gateway (Hono @ :4020)  -- verifies payment proof (x402) --> AI Backend
+                                                    |
+                                                    v
+                                             AI Backend (Express @ :5000)
+                                                    |
+                                                    v
+                       Transcription -> AI slide generator -> PptxGenJS -> .pptx
+                                                    |
+                                                    v
+                                              Frontend preview & download
+```
 
-Explain what happens at every stage.
+Project structure
+- Voice-to-Slide-Deck--Generator/
+  - ai-backend/                # Express backend: transcription, AI, pptx generation, storage
+  - payment-gateway/          # Hono-based payment gateway: x402 protection, payment verification, proxies
+  - voice-to-slide-frontend/  # Next.js frontend app (upload, preview, wallet integration)
+  - generate-samples.js       # (Utility script: sample generation or local testing harness)
+  - .gitignore
+  - README.md
 
-TECHNOLOGY STACK:
+(If your repo contains more or fewer files, use that actual layout — this README documents the intended structure and responsibilities.)
 
-Create a clear table containing:
-Technology
-Purpose
+Component responsibilities
 
-Include:
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- Node.js
-- Express
-- Hono
-- AI speech transcription
-- AI language model
-- PDF parser
-- PptxGenJS
-- x402
-- Algorand TestNet
-- Lute Wallet
+AI Backend (ai-backend/)
+- controllers: Handle incoming API requests (e.g., create job, get result, health checks) and coordinate services.
+- routes: Expose endpoints for the frontend/gateway to call (transcription, generate slides, serve generated PPTX).
+- services:
+  - transcription service: Accepts audio (multipart or URL), calls the configured speech-to-text provider to obtain a transcript. The transcript is the PRIMARY source of truth for slide generation.
+  - PDF service: If a PDF is uploaded, extracts text and metadata to provide optional supporting context for the AI; must NOT override the audio transcript topic.
+  - AI / GPT service: Accepts transcript (+ optional PDF context) and requested slide count and returns structured slide JSON (titles, bullet points, optionally visuals/layout hints).
+    - NOTE: Do not claim a model by name unless present in the code; the backend uses whatever AI integration is configured via environment variables.
+  - presentation generation: Converts structured slide JSON into an actual .pptx using PptxGenJS, ensuring the generated file contains exactly the requested number of slides.
+  - storage service: Temporarily stores generated PPTX files and serves download URLs (or streams) to the frontend. Implements cleanup as needed.
+
+Payment Gateway (payment-gateway/)
+- environment configuration: Loads Algorand & x402-related secrets from environment variables (locally via .env).
+- payment configuration: x402 middleware configuration and payment verification logic for Algorand TestNet.
+- x402 middleware: Validates incoming HTTP requests that must be backed by a valid payment proof. Rejects or forwards based on verification.
+- health route: Basic health endpoint for service readiness.
+- transcription / slide-generation route(s): Protected by x402 — accept requests only with a verified payment proof, then forward or call the AI backend as appropriate.
+- AI proxy: When authorized, the gateway proxies requests to the AI backend to keep AI endpoints protected behind payment.
+
+Frontend (voice-to-slide-frontend/)
+- Major pages / components:
+  - Home: Project introduction and start point.
+  - Upload: Upload inputs for audio file and optional PDF, slide count selector.
+  - Preview: Renders the generated slides (preview uses the same generated JSON as PPTX).
+  - Download: Download button for the final .pptx.
+  - UploadCard: Component to accept/upload audio and optional PDF.
+  - TranscriptView: Shows the AI or raw transcript derived from uploaded audio.
+  - SlideCard: UI representation of each generated slide (title, bullets, visual hint).
+  - DownloadButton: Triggers download of the generated .pptx (same data as preview).
+  - X402PaywallModal: Payment modal that begins x402 flow and triggers Lute Wallet interaction.
+  - Lute Wallet integration: Connects to Lute Wallet for Algorand TestNet signing of x402 transactions.
+  - API service: Client library used to call local Payment Gateway endpoints, handle auth/payment proof headers, and fetch generation results.
+
+Application flow — detailed (what happens at every stage)
+1. User chooses audio file (and optionally a supporting PDF) and the desired slide count in the frontend Upload page.
+2. Frontend uploads audio/PDF to the frontend server or passes them to the Payment Gateway depending on implementation. Typically the frontend sends an initial request to the Payment Gateway for a protected generation request.
+3. Payment: Frontend triggers x402 payment flow:
+   - X402 flow requests a payment proof via the Payment Gateway.
+   - Lute Wallet is invoked (user-facing wallet) to sign an Algorand TestNet transaction.
+   - User approves the transaction in Lute Wallet.
+   - Wallet returns a signed transaction/proof to the frontend.
+4. The frontend sends the signed proof + audio/PDF metadata to the Payment Gateway endpoint.
+5. Payment Gateway verifies payment proof with Algorand TestNet and its x402 middleware:
+   - If invalid, returns HTTP 402 (Payment Required) or an error.
+   - If valid, forwards or issues an authorized request to the AI Backend.
+6. AI Backend:
+   - Accepts the audio (or a reference URL) and optional PDF.
+   - Runs speech transcription (speech-to-text).
+   - Performs optional PDF text extraction (PDF is secondary; only supports extra context).
+   - Passes transcript + optional PDF context + requested slide count to AI slide generation service.
+   - Validates AI response structure and ensures the requested slide count is satisfied.
+   - Converts validated slide JSON into a .pptx file using PptxGenJS.
+   - Stores the .pptx and returns a URL or streams it back via the gateway.
+7. Frontend receives slide JSON for immediate preview (same data used for the downloaded .pptx).
+8. User previews slides, and if satisfied, clicks Download to retrieve the exact .pptx file with the requested number of slides.
+
+Why the transcript is primary
+- The system uses the audio transcript as the PRIMARY source of truth for topic, slide titles, and bullet points. Any optional PDF is only supporting context and cannot override or replace the topic deduced from audio.
+
+Technology stack (table)
+
+| Technology | Purpose |
+|---|---|
+| Next.js | Frontend framework and server-side rendering for the UI |
+| React | UI component library used in the frontend |
+| TypeScript | Static typing across frontend, backend, and gateway |
+| Tailwind CSS | Styling for the frontend |
+| Node.js | Runtime for backend services |
+| Express | AI Backend HTTP server |
+| Hono | Lightweight framework used for the Payment Gateway |
+| AI speech transcription (configured provider) | Converts audio → transcript |
+| AI language model (configured provider) | Generates structured slide JSON from transcript |
+| PDF parser (configured library) | Extracts text from optional PDFs |
+| PptxGenJS | Converts structured slides → .pptx files |
+| x402 | Payment protection middleware / protocol used to gate AI endpoints |
+| Algorand TestNet | Blockchain network used for test payments |
+| Lute Wallet | Wallet used for signing Algorand TestNet transactions |
+| Git | Version control |
+| GitHub | Repository hosting |
+
+Features
+- Audio upload (user-supplied audio is the authoritative source)
+- Speech transcription (speech → text)
+- AI-based topic understanding and slide generation
+- Dynamic slide count (user-requested slide count is strictly enforced)
+- Optional PDF for additional context (secondary to audio)
+- AI-generated slide content (titles + bullets + visual hints)
+- PPT generation via PptxGenJS (downloadable .pptx)
+- Presentation preview in frontend (same data used for .pptx)
+- Relevant visual support hints in generated JSON (if supported) — visuals are topic-based; no external image search claimed unless implemented
+- x402 payment protection
+- Algorand TestNet + Lute Wallet signing flow
+- Error handling in each stage of pipeline
+- End-to-end workflow demonstrating AI + Web + Blockchain integration
+
+Setup — Local development
+Requirements
+- Node.js (recommended LTS)
+- npm (or yarn)
 - Git
-- GitHub
+- Lute Wallet (browser extension or compatible wallet for Algorand TestNet)
+- Basic familiarity with running multiple services locally
 
-Do not claim a specific AI model name unless it is actually confirmed by the project code.
-
-FEATURES:
-
-Include a strong feature list covering:
-- Audio upload
-- Speech transcription
-- AI topic understanding
-- Dynamic slide count
-- Optional PDF support
-- AI-generated slide content
-- Professional PPT generation
-- Relevant visual support
-- Presentation preview
-- PPT download
-- x402 payment
-- Algorand TestNet
-- Lute Wallet
-- Error handling
-- End-to-end workflow
-
-SETUP:
-
-Provide clear instructions for cloning and running the project.
-
-Repository:
-
-https://github.com/25211a6606-cmyk/Voice-to-Slide-Deck--Generator.git
-
-Explain that the project requires Node.js and npm.
-
-Provide installation instructions for:
-
-1. ai-backend
-2. payment-gateway
-3. voice-to-slide-frontend
-
-Provide commands such as:
-
-git clone ...
+Clone repository
+```bash
+git clone https://github.com/25211a6606-cmyk/Voice-to-Slide-Deck--Generator.git
 cd Voice-to-Slide-Deck--Generator
+```
 
-Then separate installation and startup instructions for each service.
+Per-service install & run
+> Note: Use the actual npm scripts in each package.json if they differ. If a service has different startup scripts (e.g., `dev`, `start`, `serve`) use what’s present in the package.json.
 
-Use the actual scripts from package.json if they can be determined from the repository. Do not invent commands.
+1) AI Backend
+```bash
+cd ai-backend
+npm install
+# typical dev command (if package.json provides it)
+npm run dev
+# or to run production/start
+npm start
+```
+- Exposes AI endpoints and PPTX generation (expected at http://localhost:5000 by default).
 
-ENVIRONMENT VARIABLES:
+2) Payment Gateway
+```bash
+cd ../payment-gateway
+npm install
+npm run dev   # or npm start depending on package scripts
+```
+- Runs Hono gateway on http://localhost:4020 by default.
+- Health endpoint: GET http://localhost:4020/health (expected response below)
 
-Explain that API keys and secrets must NOT be committed to GitHub.
+3) Frontend
+```bash
+cd ../voice-to-slide-frontend
+npm install
+npm run dev   # Next.js dev server, usually at http://localhost:3000
+# or npm start for a production-style run
+```
 
-Explain .env usage.
-
-Show a safe example using placeholder values only:
-
-OPENAI_API_KEY=your_key_here
-
-Do not include real API keys.
-
-Mention that .env files should remain local and are protected by .gitignore.
-
-Do not expose wallet private keys or payment secrets.
-
-LOCAL DEVELOPMENT:
-
-Explain the expected local services:
-
-Frontend:
-http://localhost:3000
-
-Payment Gateway:
-http://localhost:4020
-
-AI Backend:
-http://localhost:5000
-
-Explain the health endpoint:
-
-GET http://localhost:4020/health
-
-Expected response:
-
+Health endpoint (Payment Gateway)
+- GET http://localhost:4020/health
+- Expected JSON response:
+```json
 {
   "status": "ok"
 }
+```
 
-API:
+Environment variables & .env
+- Do NOT commit API keys, secrets, wallet keys, or private keys.
+- Use .env files locally and add them to .gitignore.
+- Example placeholders (do not use real secrets):
 
-Document the important endpoints that actually exist in the project.
+```
+# ai-backend/.env
+OPENAI_API_KEY=your_openai_api_key_here
+SPEECH_PROVIDER_API_KEY=your_speech_api_key_here
+STORAGE_DIR=./storage
+PORT=5000
 
-For each endpoint include:
-- Method
-- Path
-- Purpose
-- Whether it is protected by x402
+# payment-gateway/.env
+ALGOD_API_KEY=your_algod_api_key_here
+X402_SHARED_SECRET=your_x402_shared_secret_here
+ALGOD_NET=testnet
+PORT=4020
 
-Only document endpoints that are actually present in the code.
+# voice-to-slide-frontend/.env
+NEXT_PUBLIC_API_GATEWAY=http://localhost:4020
+NEXT_PUBLIC_PAYMENT_AMOUNT=100000  # example microAlgos amount for test flows
+```
 
-Do not invent API endpoints.
+- Never commit .env files or any real credentials. If you accidentally commit secrets, rotate them immediately.
 
-AI PRESENTATION PIPELINE:
+Important endpoints (what to check in code)
+- Payment Gateway
+  - GET /health — healthcheck (not protected)
+  - Payment-protected endpoints (x402 middleware) that accept the signed proof + payload and forward/trigger AI generation (names vary; check the gateway routes for exact paths). These routes are intended to be protected — unauthorized requests should fail with HTTP 402 or 401 depending on verification.
 
-Explain this clearly:
+- AI Backend
+  - Transcription & generation endpoints — typically accept audio or audio URL + optional PDF and a requested slide count. Implementation details (path names and method signatures) are in ai-backend/routes — please inspect those files for exact information.
 
-Audio
-↓
-Speech Transcription
-↓
-Transcript
-↓
-Optional PDF Text Extraction
-↓
-Transcript + Supporting PDF Context
-↓
-AI Slide Generation
-↓
-Requested Slide Count Validation
-↓
-Structured Slide JSON
-↓
-PptxGenJS
-↓
-.pptx
-↓
-Preview + Download
+Important: Only the /health endpoint response is guaranteed by the repository notes above. For precise route names and request bodies, check the corresponding route files in ai-backend/ and payment-gateway/ — this README intentionally avoids inventing exact endpoint paths where they are not explicitly specified in source.
 
-Explain why the transcript is the primary source.
+AI presentation pipeline (full)
+1. Audio (user upload)
+2. Speech Transcription → transcript (PRIMARY)
+3. Optional PDF text extraction → supporting context (SECONDARY)
+4. Transcript + Optional PDF context → AI slide generator
+5. Requested Slide Count Validation → ensure exactly N slides
+6. Structured Slide JSON → PptxGenJS
+7. .pptx file generated (exactly N slides)
+8. Frontend preview (renders same structured JSON)
+9. Download (.pptx)
 
-QUALITY AND VALIDATION:
+Why the transcript is primary
+- The audio transcript contains the user's actual content and intent. The AI slide generation must base slide titles and bullets primarily on transcript content. The optional PDF supplements but cannot override the transcript's detected topic.
 
-Explain that the system should validate:
-- Audio transcription
-- Non-empty transcript
-- AI response structure
-- Requested slide count
-- Slide titles
-- Slide bullet points
-- PPT generation
-- Preview consistency
+Quality & validation (what the system checks)
+- Audio transcription present and non-empty
+- Transcript coherency (basic validation)
+- AI response conforms to expected JSON schema (e.g., slide objects, title, bullets)
+- Requested slide count matches the number of slides in AI response
+- Slide titles and bullet points are non-empty
+- PPT generation completes successfully and contains the expected number of slides
+- Preview JSON and generated .pptx are consistent
 
-Explain that the system should not fall back to fake/demo presentations if generation fails.
-
-ERROR HANDLING:
-
-Include common issues such as:
+Error handling — common issues & troubleshooting
 - Backend not running
+  - Symptom: frontend shows errors when calling API or 500 responses
+  - Fix: Start ai-backend and payment-gateway; check logs, run `npm run dev` or `npm start` as appropriate.
 - Payment returns 402
+  - Symptom: Payment Gateway rejects request with HTTP 402
+  - Fix: Ensure wallet transaction was signed correctly, Algorand TestNet chosen in wallet, and gateway x402 config matches signing flow.
 - Wallet signing failure
+  - Symptom: Wallet refuses transaction or user cancels
+  - Fix: Ensure Lute Wallet is connected, account selected, and network set to Algorand TestNet.
 - Missing API key
+  - Symptom: 401 / provider errors for transcription or AI
+  - Fix: Add provider keys to .env and restart services.
 - Empty transcript
-- Invalid AI response
+  - Symptom: AI generation fails or returns invalid content
+  - Fix: Re-upload audio, check transcription logs, ensure audio quality/format is supported.
+- Invalid AI response (wrong structure)
+  - Symptom: Generation fails validation
+  - Fix: Inspect AI service logs and adjust prompt/template or validation logic.
 - Incorrect slide count
+  - Symptom: Generated deck has different number of slides
+  - Fix: Validation should reject; check generation logic and enforce N slides before PPT conversion.
 - PPT generation failure
+  - Symptom: Error while using PptxGenJS
+  - Fix: Check structured JSON, remove unsupported elements, validate resources, and review PptxGenJS usage in presentation generation service.
 
-Give concise explanations and troubleshooting commands where appropriate.
+Blockchain payment flow (detailed)
+1. Frontend triggers x402 protected request to the Payment Gateway.
+2. Payment Gateway responds with payment challenge or expects a signed transaction proof.
+3. Frontend uses Lute Wallet (Algorand TestNet) to sign the payment transaction.
+4. User signs the transaction via Lute Wallet UI.
+5. Wallet returns a signed-proof to the frontend.
+6. Frontend forwards the signed payment proof to the Payment Gateway.
+7. Payment Gateway verifies the proof on Algorand TestNet and accepts or rejects.
+8. If verified, Payment Gateway forwards the authorized request to AI Backend / initiates the generation flow.
+9. AI Backend processes request and returns generated content.
 
-BLOCKCHAIN PAYMENT FLOW:
+- HTTP 402: indicates payment required or invalid/absent payment proof. Do not bypass the payment gateway — the x402 protocol is designed to gate expensive AI operations.
 
-Explain this clearly:
+Security & best practices
+- Never commit .env files, API keys, or wallet private keys.
+- Keep production secrets out of Git and ENV files in CI/CD secret stores.
+- For local development use Algorand TestNet — do not use MainNet keys in development.
+- Use environment variables for all secrets and configuration.
+- Validate incoming files and sanitize any user-provided data.
+- Limit storage retention for generated artifacts and audit access.
 
-Frontend
-↓
-x402 protected request
-↓
-Lute Wallet
-↓
-User signs Algorand TestNet transaction
-↓
-Payment proof
-↓
-Payment Gateway
-↓
-Payment verification
-↓
-AI Backend
-↓
-AI service
+Hackathon / demo flow (concise)
+1. Start all three services locally (frontend :3000, gateway :4020, ai-backend :5000).
+2. Open http://localhost:3000.
+3. Upload an audio recording (short demo speech).
+4. Optionally upload a PDF to provide supporting context.
+5. Enter desired slide count (e.g., 5).
+6. Click Generate — X402Paywall modal appears.
+7. Connect Lute Wallet and approve Algorand TestNet transaction.
+8. Wait for transcription and AI processing to finish.
+9. Preview the generated slides and confirm the topic matches audio.
+10. Verify exactly N slides generated.
+11. Download the .pptx and open in PowerPoint or compatible viewer.
 
-Explain that HTTP 402 means payment is required or a valid payment proof has not been provided.
+Why VoiceToSlide?
+- Problem solved: Converting spoken knowledge (lectures, pitches, ideas) into a structured, presentation-ready format is time-consuming. VoiceToSlide automates transcription, topic understanding, and slide creation while ensuring the user's spoken content remains authoritative.
+- Hackathon value: Demonstrates AI + speech understanding + document context + automated presentation generation + blockchain-protected monetization in a single, demonstrable flow.
 
-Do not provide instructions for bypassing payment.
+Future improvements (realistic & actionable)
+- Additional presentation themes and styling templates
+- Automated visual generation (topic-relevant images) with attribution and ethical controls
+- Charts & simple diagrams generated from data in audio or provided PDFs
+- Speaker notes extraction from transcript
+- Multi-language transcription & translation
+- Improved PDF semantic retrieval (local embeddings)
+- Cloud deployment with scalable worker queues
+- Authentication & user accounts
+- Collaboration & slide editing
+- Analytics on deck usage and generation quality
+- Move x402 to production-ready payment integration and Algorand mainnet support (with security review)
 
-SECURITY:
-
-Include:
-- Never commit .env files
-- Never expose API keys
-- Never expose wallet private keys
-- Use environment variables
-- Keep production secrets outside Git
-- Use appropriate network configuration
-- Use Algorand TestNet for development/testing
-
-HACKATHON VALUE:
-
-Explain the project's value as the combination of:
-
-AI
-+
-Speech Understanding
-+
-Document Context
-+
-Automated Presentation Generation
-+
-Blockchain Payments
-
-Explain the problem being solved and why the application is useful.
-
-Include a section called "Why VoiceToSlide?" explaining that users can turn spoken knowledge into structured presentations without manually creating every slide.
-
-DEMO FLOW:
-
-Provide a simple hackathon demonstration flow:
-
-1. Open the application.
-2. Upload an audio recording.
-3. Optionally upload a PDF.
-4. Select the desired number of slides.
-5. Connect Lute Wallet.
-6. Approve the Algorand TestNet payment.
-7. Wait for transcription and AI processing.
-8. Review the generated presentation.
-9. Verify that the topic matches the audio.
-10. Verify that the requested number of slides was generated.
-11. Download the PowerPoint.
-
-PROJECT STATUS:
-
-Describe the project as an end-to-end working prototype/hackathon application, but do not claim production readiness unless supported by the code.
-
-FUTURE IMPROVEMENTS:
-
-Suggest realistic future improvements such as:
-- More presentation themes
-- Better visual generation
-- Charts and diagrams
-- Speaker notes
-- Multi-language support
-- Improved PDF semantic retrieval
-- Cloud deployment
-- Authentication
-- Collaboration
-- Analytics
-- Production blockchain deployment
-
-Do not claim these features already exist.
-
-GIT WORKFLOW:
-
-Include basic commands:
-
+Git workflow (quick)
+```bash
 git status
 git add .
 git commit -m "Describe changes"
 git push
+```
+- Never commit API keys or private wallet keys.
 
-Explain that API keys must never be committed.
+License
+- If this repository does not include a LICENSE file, then no open-source license has been explicitly granted. Add an appropriate license (MIT, Apache-2.0, etc.) if you want to define reuse and distribution terms.
 
-LICENSE:
+Final notes & recommendations
+- Confirm exact API paths and npm scripts by inspecting each service's package.json and route files:
+  - ai-backend/package.json
+  - payment-gateway/package.json
+  - voice-to-slide-frontend/package.json
+  - ai-backend/routes/* and payment-gateway/routes/*
+- Keep secrets local and ephemeral. Use the configuration placeholders in .env only for local testing and use CI/CD secret stores for deployments.
+- The generated .pptx must always contain the exact number of slides requested: ensure strict validation between AI output and PptxGenJS conversion.
+- The audio transcript is the authoritative source; optional PDFs only supply supporting context.
 
-Do not invent a license if one does not exist.
+If you want, I can:
+- Draft example .env templates for each subproject with placeholder keys only,
+- Produce a quick checklist for testing the payment flow locally with Algorand TestNet and Lute Wallet,
+- Or generate example request / response JSON schemas for the AI slide JSON format used by the presentation generator.
 
-State that the project currently does not specify a license if appropriate.
-
-IMPORTANT WRITING STYLE:
-
-Make the README:
-- Professional
-- Detailed
-- Easy for judges to understand
-- Easy for developers to set up
-- Well organized
-- Visually attractive using Markdown
-- Use headings
-- Use tables
-- Use code blocks
-- Use diagrams using ASCII/Markdown where useful
-- Use emojis sparingly
-- Clearly separate AI, frontend, payment, and blockchain responsibilities
-
-Start with:
-
-# 🎙️ VoiceToSlide — AI-Powered Audio to PowerPoint Generator
-
-Then include a strong one-line description.
-
-Do not include fictional claims.
-
-Do not expose secrets.
-
-Do not claim features that are not implemented.
-
-The final output must be ONE COMPLETE README.md document and nothing else.
+Enjoy building — this project showcases a compelling intersection of AI, speech, document context, and blockchain protections suitable for a standout hackathon demo.
