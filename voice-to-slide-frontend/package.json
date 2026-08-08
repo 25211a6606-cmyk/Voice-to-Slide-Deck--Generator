@@ -1,0 +1,33 @@
+{
+  "name": "voice-to-slide-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 5173",
+    "build": "next build",
+    "start": "next start -p 5173",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@x402-avm/avm": "^2.6.1",
+    "@x402-avm/core": "^2.6.1",
+    "algosdk": "^3.6.0",
+    "axios": "^1.19.0",
+    "lucide-react": "^1.29.0",
+    "lute-connect": "^2.0.1",
+    "next": "16.3.0",
+    "pptxgenjs": "^4.0.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
