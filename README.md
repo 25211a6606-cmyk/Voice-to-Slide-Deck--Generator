@@ -34,9 +34,9 @@ Project status
 - This repository represents an end-to-end working prototype / hackathon application that demonstrates transcription → AI slide generation → pptx creation with a protected payment path using Algorand TestNet and Lute Wallet. It is a prototype and not production-ready.
 
 Architecture & high-level flow
-- Frontend (Next.js, TypeScript, Tailwind) — user UI, uploads, preview, payment UI integration with Lute Wallet — localhost:3000
+- Frontend (Next.js, TypeScript, Tailwind) — user UI, uploads, preview, payment UI integration with Lute Wallet — localhost:5173
 - Payment Gateway (Hono, TypeScript, x402 protection) — validates payment proofs, proxies/forwards authorized requests to AI backend — localhost:4020
-- AI Backend (Express, Node.js) — speech transcription, optional PDF extraction, AI slide generation, PptxGenJS conversion, storage/serving of generated PPTX — localhost:5000
+- AI Backend (Express, Node.js) — speech transcription, optional PDF extraction, AI slide generation, PptxGenJS conversion, storage/serving of generated PPTX — localhost:4021
 
 Logical flow (quick)
 User → Frontend (upload + payment + wallet sign) → Payment Gateway (x402 verification) → AI Backend (transcribe → AI generate slides → validate → pptx) → Frontend preview → Download (.pptx)
@@ -46,14 +46,14 @@ ASCII diagram
 User
   |
   v
-Frontend (Next.js @ :3000)
+Frontend (Next.js @ :5173)
   |-- Upload audio (+ optional PDF)
   |-- Request payment (x402) → Lute Wallet (Algorand TestNet)
   v
 Payment Gateway (Hono @ :4020)  -- verifies payment proof (x402) --> AI Backend
                                                     |
                                                     v
-                                             AI Backend (Express @ :5000)
+                                             AI Backend (Express @ :4021)
                                                     |
                                                     v
                        Transcription -> AI slide generator -> PptxGenJS -> .pptx
@@ -196,7 +196,7 @@ npm run dev
 # or to run production/start
 npm start
 ```
-- Exposes AI endpoints and PPTX generation (expected at http://localhost:5000 by default).
+- Exposes AI endpoints and PPTX generation (expected at http://localhost:4021 by default).
 
 2) Payment Gateway
 ```bash
@@ -211,7 +211,7 @@ npm run dev   # or npm start depending on package scripts
 ```bash
 cd ../voice-to-slide-frontend
 npm install
-npm run dev   # Next.js dev server, usually at http://localhost:3000
+npm run dev   # Next.js dev server, usually at http://localhost:5173
 # or npm start for a production-style run
 ```
 
@@ -234,7 +234,7 @@ Environment variables & .env
 OPENAI_API_KEY=your_openai_api_key_here
 SPEECH_PROVIDER_API_KEY=your_speech_api_key_here
 STORAGE_DIR=./storage
-PORT=5000
+PORT=4021
 
 # payment-gateway/.env
 ALGOD_API_KEY=your_algod_api_key_here
@@ -330,8 +330,8 @@ Security & best practices
 - Limit storage retention for generated artifacts and audit access.
 
 Hackathon / demo flow (concise)
-1. Start all three services locally (frontend :3000, gateway :4020, ai-backend :5000).
-2. Open http://localhost:3000.
+1. Start all three services locally (frontend :5173, gateway :4020, ai-backend :4021).
+2. Open http://localhost:5173.
 3. Upload an audio recording (short demo speech).
 4. Optionally upload a PDF to provide supporting context.
 5. Enter desired slide count (e.g., 5).
