@@ -3,7 +3,6 @@
 Turn spoken knowledge into a professional PowerPoint in minutes. Upload audio (optionally a supporting PDF), pick how many slides you want, pay via the x402/Algorand TestNet flow using Lute Wallet, and receive an AI-generated .pptx that exactly matches the requested slide count.
 
 ---
-![Uploading image.png…]()
 
 
 Quick one-line summary
